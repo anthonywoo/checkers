@@ -1,4 +1,6 @@
 load 'piece.rb'
+load 'king.rb'
+load 'player.rb'
 class Board
 
   attr_accessor :whites, :blacks
@@ -8,21 +10,24 @@ class Board
     @blacks = create_black_pieces if create_board
   end 
 
-  def move_piece(pos1, pos2)
+  def move_piece(pos1, pos2, last_check)
     y1, x1 = pos1[0], pos1[1]
     y2, x2 = pos2[0], pos2[1]
     selected_piece = find_piece(y1, x1)
     captured_piece = nil
     if selected_piece.valid_move?(y2, x2)
       arr = find_leaped_square(pos1, pos2)
-      captured_piece = find_piece(arr[0],arr[1]) 
+      captured_piece = find_piece(arr[0],arr[1]) if find_piece(arr[0],arr[1]) != selected_piece
       delete_piece(captured_piece) if captured_piece 
+      puts captured_piece if captured_piece
       selected_piece.y, selected_piece.x = y2, x2
+      puts "y: #{selected_piece.y}"
+      puts "x: #{selected_piece.x}"
     else
       raise "Move was invalid"
     end
-
-    raise "Your piece can still jump" if captured_piece && selected_piece.has_available_jump?
+    puts last_check.to_s
+    raise "Your piece can still jump" if captured_piece && selected_piece.has_available_jump? && last_check #NOT WORKING
   end
 
   def check_for_kings
@@ -56,7 +61,7 @@ class Board
     selected_pieces.delete(piece)
   end
 
-  def delete(y,x)
+  def delete(y,x) #method used for testing
     piece = find_piece(y,x)
     selected_pieces = piece.color == :W ? self.whites : self.blacks
     selected_pieces.delete(piece)
@@ -107,15 +112,15 @@ class Board
     [leaped_y, leaped_x]
   end
 
-  def dup
+  def duplicate
     new_board = Board.new(false)
     new_whites = []
     new_blacks = []
     whites.each do |piece|
-      new_whites << piece.dup
+      new_whites << Piece.new(piece.y, piece.x, :W, new_board)
     end
     blacks.each do |piece|
-      new_blacks << piece.dup
+      new_blacks << Piece.new(piece.y, piece.x, :B, new_board)
     end
     new_board.blacks = new_blacks
     new_board.whites = new_whites

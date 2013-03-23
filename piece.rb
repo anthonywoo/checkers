@@ -1,7 +1,7 @@
-#load 'king.rb'
 class Piece
 
-  attr_accessor :y, :x, :color, :board
+  attr_accessor :y, :x, :color
+  attr_reader :board
 
   def initialize(y,x,color, board)
     @x = x
@@ -24,9 +24,9 @@ class Piece
     false
   end
 
-  def inspect
-    puts "y = #{@y}, x = #{@x}, color = #{@color}"
-  end
+  # def inspect
+  #   puts "y = #{@y}, x = #{@x}, color = #{@color}"
+  # end
 
   def is_attack?(move_y,move_x)
     (move_y - self.y).abs == 2 && (move_y - self.y).abs == 2
